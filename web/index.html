@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EZstore</title>
+    <style>
+    #login{
+        position: fixed;
+        left: 40%;
+        top: 50%;
+        min-width: 500px;
+        min-height: 100px;
+        margin: -100px 0px 0px -150px;
+        font-size: larger;
+
+    }
+</style>
+    <script>
+        function login() {
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {
+                //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState===4 && xmlhttp.status===200)
+                {
+                    var string= xmlhttp.responseText;
+                    if(string==="success"){
+                        localStorage.setItem("name","admi");
+                        window.location.href="administrator.html";
+                    }else {
+                        alert("wrong password or name!");
+                    }
+
+                }
+            };
+            var name=document.getElementsByName("name");
+            var password = document.getElementsByName("password");
+            xmlhttp.open("POST","adminiLogin",true);
+            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+            xmlhttp.send("name="+name[0].value+"&password="+password[0].value);
+
+        }
+    </script>
+</head>
+
+<body>
+    <fieldset id="login">
+        <legend>Administrator</legend>
+    Login in as an administrator:<br>
+        name: <label>
+        <input type="text" name="name">
+    </label>
+        password: <label>
+        <input type="password" name="password">
+    </label><br>
+        <button value="login" onclick="login()">login</button>
+    </fieldset>
+</body>
+</html>

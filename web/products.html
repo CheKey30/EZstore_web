@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EZstore</title>
+    <style>
+        #header {
+            background-color: #3f51b5;
+            color:white;
+            text-align:right;
+            padding:5px;
+        }
+        #bar{
+            background-color:#3f51b5;
+            color: white;
+            text-align: center;
+            padding: 5px;
+        }
+        #nav {
+            line-height:30px;
+            background-color:#eeeeee;
+            min-height:200px;
+            min-width:100px;
+            float:left;
+            padding:5px;
+        }
+        #section {
+            width:350px;
+            min-height:500px;
+            float:left;
+            padding:10px;
+        }
+        #footer {
+            background-color:#3f51b5;
+            color:white;
+            clear:both;
+            text-align:center;
+            padding:5px;
+        }
+    </style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+    <script>
+        var allpro = document.getElementsByName("class");
+        function checklogin() {
+            if(localStorage.getItem("name")!=="admi"){
+                window.location.href="index.html";
+            }else {
+                showallgoods();
+            }
+        }
+        function delsession(){//为了删除指定名称的cookie，可以将其过期时间设定为一个过去的时间
+            localStorage.removeItem("name");
+            window.location.href="index.html";
+        }
+        function Product(name,price,discount,quantity,shelf) {
+            var pro ={};
+            pro.product_name = name;
+            pro.price = price;
+            pro.discount = discount;
+            pro.quantity = quantity;
+            pro.shelf = shelf;
+            return pro;
+        }
+        function searchgoods(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {
+                //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState===4 && xmlhttp.status===200)
+                {
+                     var string= xmlhttp.responseText;
+                     var obj = JSON.parse(string);
+                     showobj(obj);
+
+                }
+            };
+            xmlhttp.open("POST","adminiDelete",true);
+            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+            xmlhttp.send("class="+str);
+        }
+        function showobj(obj) {
+            for(var i=0;i<obj.length;i++){
+                var tr = document.createElement("tr");
+                var tname = document.createElement("td");
+                var tprice = document.createElement("td");
+                var tdiscount = document.createElement("td");
+                var tquantity = document.createElement("td");
+                var tshelf = document.createElement("td");
+                var tselect = document.createElement("td");
+                tname.innerHTML = obj[i].product_name;
+                tname.setAttribute("name","name");
+                tprice.innerHTML = obj[i].price;
+                tprice.setAttribute("name","price");
+                tdiscount.innerHTML = obj[i].discount;
+                tdiscount.setAttribute("name","discount");
+                tquantity.innerHTML = obj[i].quantity;
+                tquantity.setAttribute("name","quantity");
+                tshelf.innerHTML=obj[i].shelf;
+                tshelf.setAttribute("name","shelf");
+                tselect.innerHTML="<input type='checkbox' id='"+i+"' value='"+obj[i].product_name+"' name='product'>";
+                tr.appendChild(tname);
+                tr.appendChild(tprice);
+                tr.appendChild(tdiscount);
+                tr.appendChild(tquantity);
+                tr.appendChild(tshelf);
+                tr.appendChild(tselect);
+                var tbody=document.getElementById('tbody');
+                tbody.appendChild(tr);
+
+            }
+
+        }
+        function selectall() {
+            //获取全选按钮
+            var all = document.getElementById("all");
+            //全选按钮被选中时，遍历所有按钮
+            if (all.checked) {
+                for (var i = 0; i < allpro.length; i++) {
+                    if (allpro[i].type==="checkbox") {
+                        allpro[i].checked=true;
+
+                    }
+                }
+                //全选按钮未被选中时
+            }else{
+                for (var i = 0; i < allpro.length; i++) {
+                    if (allpro[i].type==="checkbox") {
+                        allpro[i].checked=false;
+                    }
+                }
+            }
+        }
+        function selectallproduct(){
+            var all = document.getElementById("allproduct");
+            var product = document.getElementsByName("product");
+            if(all.checked){
+                for(var i=0;i<product.length;i++) {
+                    if (product[i].type === "checkbox") {
+                        product[i].checked = true;
+                    }
+                }
+            }else{
+                for(var i=0;i<product.length;i++){
+                    if(product[i].type==="checkbox"){
+                        product[i].checked=false;
+                    }
+                }
+            }
+        }
+        function checkselect(){
+            document.getElementById("tbody").innerHTML="";
+            for(var i=0;i<allpro.length;i++){
+                if(allpro[i].checked){
+                    searchgoods(allpro[i].value);
+                }
+            }
+        }
+        function showallgoods(){
+            document.getElementById("tbody").innerHTML="";
+            for(var i=1;i<=6;i++){
+                for(var j=1;j<=4;j++){
+                    searchgoods(i+"."+j);
+                }
+            }
+        }
+        function deleteproduct(){
+            var product = document.getElementsByName("product");
+            var j=0;
+            var str="";
+            for(var i=0;i<product.length;i++){
+                if(product[i].checked){
+                    str=str+j+"="+product[i].value+"&";
+                    j++;
+                }
+            }
+            if(j===0){
+                alert("please at least choose one product to delete");
+                return;
+            }
+            str=str+"num="+j;
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {
+                //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState===4 && xmlhttp.status===200)
+                {
+                    var string= xmlhttp.responseText;
+                    alert(string);
+                    showallgoods();
+                }
+            };
+            xmlhttp.open("POST","adminiDelete2",true);
+            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+            xmlhttp.send(str);
+        }
+        function preference(){
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {
+                //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState===4 && xmlhttp.status===200)
+                {
+                    var string= xmlhttp.responseText;
+                    mywindow = window.open();
+                    mywindow.document.write(string);
+
+                }
+            };
+            xmlhttp.open("POST","adminiPrefer",true);
+            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+            xmlhttp.send();
+        }
+        function sort(str) {
+            var tname = document.getElementsByName("name");
+            var tprice = document.getElementsByName("price");
+            var tdiscount = document.getElementsByName("discount");
+            var tquantity = document.getElementsByName("quantity");
+            var tshelf =document.getElementsByName("shelf");
+            var productlist = [];
+            for(var k=0;k<tprice.length;k++){
+                var product = new Product(tname[k].innerHTML,tprice[k].innerHTML,tdiscount[k].innerHTML,tquantity[k].innerHTML,tshelf[k].innerHTML);
+                productlist.push(product);
+            }
+            switch(str){
+                case "hp":
+                {
+                    for(var j=0;j<productlist.length-1;j++){
+                        //两两比较，如果前一个比后一个大，则交换位置。
+                        for(var i=0;i<productlist.length-1-j;i++){
+                            if(parseFloat(productlist[i].price) < parseFloat(productlist[i+1].price)){
+                                var temp = productlist[i];
+                                productlist[i] = productlist[i+1];
+                                productlist[i+1] = temp;
+                            }
+                        }
+                    }
+
+                    document.getElementById("tbody").innerHTML="";
+                    showobj(productlist);
+
+                }break;
+                case "lp":
+                {
+                    for(var j=0;j<productlist.length-1;j++){
+                        //两两比较，如果前一个比后一个大，则交换位置。
+                        for(var i=0;i<productlist.length-1-j;i++){
+                            if(parseFloat(productlist[i].price) > parseFloat(productlist[i+1].price)){
+                                var temp = productlist[i];
+                                productlist[i] = productlist[i+1];
+                                productlist[i+1] = temp;
+                            }
+                        }
+                    }
+
+                    document.getElementById("tbody").innerHTML="";
+                    showobj(productlist);
+                }break;
+                case "hd":
+                {
+                    for(var j=0;j<productlist.length-1;j++){
+                        //两两比较，如果前一个比后一个大，则交换位置。
+                        for(var i=0;i<productlist.length-1-j;i++){
+                            if(parseFloat(productlist[i].discount) < parseFloat(productlist[i+1].discount)){
+                                var temp = productlist[i];
+                                productlist[i] = productlist[i+1];
+                                productlist[i+1] = temp;
+                            }
+                        }
+                    }
+                    document.getElementById("tbody").innerHTML="";
+                    showobj(productlist);
+
+                }break;
+                case "ld":
+                {
+                    for(var j=0;j<productlist.length-1;j++){
+                        //两两比较，如果前一个比后一个大，则交换位置。
+                        for(var i=0;i<productlist.length-1-j;i++){
+                            if(parseFloat(productlist[i].discount) > parseFloat(productlist[i+1].discount)){
+                                var temp = productlist[i];
+                                productlist[i] = productlist[i+1];
+                                productlist[i+1] = temp;
+                            }
+                        }
+                    }
+                    document.getElementById("tbody").innerHTML="";
+                    showobj(productlist);
+                }break;
+                case "hq":
+                {
+                    for(var j=0;j<productlist.length-1;j++){
+                        //两两比较，如果前一个比后一个大，则交换位置。
+                        for(var i=0;i<productlist.length-1-j;i++){
+                            if(parseFloat(productlist[i].quantity) < parseFloat(productlist[i+1].quantity)){
+                                var temp = productlist[i];
+                                productlist[i] = productlist[i+1];
+                                productlist[i+1] = temp;
+                            }
+                        }
+                    }
+                    document.getElementById("tbody").innerHTML="";
+                    showobj(productlist);
+                }break;
+                case "lq":
+                {
+                    for(var j=0;j<productlist.length-1;j++){
+                        //两两比较，如果前一个比后一个大，则交换位置。
+                        for(var i=0;i<productlist.length-1-j;i++){
+                            if(parseFloat(productlist[i].quantity) > parseFloat(productlist[i+1].quantity)){
+                                var temp = productlist[i];
+                                productlist[i] = productlist[i+1];
+                                productlist[i+1] = temp;
+                            }
+                        }
+                    }
+                    document.getElementById("tbody").innerHTML="";
+                    showobj(productlist);
+                }break;
+            }
+        }
+    </script>
+</head>
+<body onload="checklogin()">
+<div id="header">Administrator
+    <button value="logout" onclick="delsession()">logout</button></div>
+<div id="bar">
+    Sort:
+        <button value="highprice" onclick="sort('hp')">price: highest first</button>
+        <button value="lowprice" onclick="sort('lp')">price: lowest first</button>
+        <button value="highdiscount" onclick="sort('hd')">discount: highest first</button>
+        <button value="lowdiscount" onclick="sort('ld')">discount: lowest first</button>
+        <button value="highquantity" onclick="sort('hq')">Quantity: high first</button>
+        <button value="lowquantity" onclick="sort('lq')">Quantity: low first</button>
+    select all<label for="allproduct"></label><input type="checkbox" onclick="selectallproduct()" id="allproduct">
+    <button id="delete" name="delete" onclick="deleteproduct()">delete</button>
+    <button id="pop" name="pop" onclick="preference()">check customers' preferences</button>
+</div>
+<div id="nav"><b>Only show:</b><br>
+    coat<label>
+        <input type="checkbox" value="1.1" name="class">
+    </label><br>
+    Trousers<label>
+        <input type="checkbox" value="1.2" name="class">
+    </label><br>
+    Sweater<label>
+        <input type="checkbox" value="1.3" name="class">
+    </label><br>
+    Shoes<label>
+        <input type="checkbox" value="1.4" name="class">
+    </label><br>
+    Computer<label>
+        <input type="checkbox" value="2.1" name="class">
+    </label><br>
+    Smartphone<label>
+        <input type="checkbox" value="2.2" name="class">
+    </label><br>
+    Television<label>
+        <input type="checkbox" value="2.3" name="class">
+    </label><br>
+    Camera<label>
+        <input type="checkbox" value="2.4" name="class">
+    </label><br>
+    Chips<label>
+        <input type="checkbox" value="3.1" name="class">
+    </label><br>
+    Cookies<label>
+        <input type="checkbox" value="3.2" name="class">
+    </label><br>
+    Drinks<label>
+        <input type="checkbox" value="3.3" name="class">
+    </label><br>
+    Nuts<label>
+        <input type="checkbox" value="3.4" name="class">
+    </label><br>
+    Novel<label>
+        <input type="checkbox" value="4.1" name="class">
+    </label><br>
+    Poetry<label>
+        <input type="checkbox" value="4.2" name="class">
+    </label><br>
+    Prose<label>
+        <input type="checkbox" value="4.3" name="class">
+    </label><br>
+    Reference Book<label>
+        <input type="checkbox" onclick="" value="4.4" name="class">
+    </label><br>
+    Pencil<label>
+        <input type="checkbox" value="5.1" name="class">
+    </label><br>
+    Notebook<label>
+        <input type="checkbox" value="5.2" name="class">
+    </label><br>
+    Pen<label>
+        <input type="checkbox" value="5.3" name="class">
+    </label><br>
+    Ruler<label>
+        <input type="checkbox" value="5.4" name="class">
+    </label><br>
+    Skin care<label>
+        <input type="checkbox" value="6.1" name="class">
+    </label><br>
+    Lipstick<label>
+        <input type="checkbox" value="6.2" name="class">
+    </label><br>
+    Toothpaste<label>
+        <input type="checkbox" value="6.3" name="class">
+    </label><br>
+    household<label>
+        <input type="checkbox" value="6.4" name="class">
+    </label><br>
+    <b>select all</b><label for="all"></label><input type="checkbox" onclick="selectall()" id="all"><br>
+    <input type="button" onclick="checkselect()" value="check">
+</div>
+<div id="section">
+    <table cellspacing="10">
+        <thead>
+        <tr>
+            <th>Product name</th>
+            <th>Price</th>
+            <th>Discount</th>
+            <th>Quantity</th>
+            <th>Shelf</th>
+            <th>Select</th>
+        </tr>
+        </thead>
+        <tbody id='tbody'></tbody>
+    </table>
+</div>
+<div id="footer">bottom of the page</div>
+</body>
+</html>

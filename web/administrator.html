@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EZstore</title>
+    <style>
+    #login{
+        position: fixed;
+        left: 40%;
+        top: 50%;
+        min-width: 500px;
+        min-height: 100px;
+        margin: -100px 0px 0px -150px;
+        font-size: larger;
+    }
+</style>
+    <script>
+        function checklogin() {
+            if(localStorage.getItem("name")!=="admi"){
+                window.location.href="index.html";
+            }
+        }
+    </script>
+</head>
+
+<body onload="checklogin()">
+<fieldset id="login">
+    <legend>Administrator</legend>
+What do you want to do?<br>
+<a href="addproduct.html"><button>add products</button></a>
+<a href="products.html"><button>check products</button></a>
+</fieldset>
+</body>
+</html>

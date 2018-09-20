@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product</title>
+    <style>
+        #header {
+            background-color: #3f51b5;
+            color:white;
+            text-align:right;
+            padding:5px;
+        }
+        #bar{
+            background-color:#3f51b5;
+            color: white;
+            text-align: center;
+            padding: 5px;
+        }
+        #nav {
+            line-height:30px;
+            background-color:#eeeeee;
+            min-height:200px;
+            min-width:100px;
+            float:left;
+            padding:5px;
+        }
+        #section {
+            width:1000px;
+            float:left;
+            padding:10px;
+        }
+        #footer {
+            background-color:#3f51b5;
+            color:white;
+            clear:both;
+            text-align:center;
+            padding:5px;
+        }
+    </style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+
+    <script>
+        function checklogin() {
+            if(localStorage.getItem("name")!=="admi"){
+                window.location.href="index.html";
+            }else {
+                createform(1);
+            }
+        }
+        function delsession(){
+            localStorage.removeItem("name");
+            window.location.href="index.html";
+        }
+        function createform(num) {
+            document.getElementById("section").innerHTML="";
+            for(var i=0;i<num;i++){
+                var div = document.createElement("div");
+                div.innerHTML="Product name: <input name=\"name\" type=\"text\">\n" +
+                    "    Price: <input type=\"text\" name=\"price\">\n" +
+                    "    Quantity: <input type=\"text\" name=\"quantity\">\n" +
+                    "    Discount: <select name=\"discount\">\n" +
+                    "    <option value=\"0\">no discount</option>\n" +
+                    "    <option value=\"10\">10% off</option>\n" +
+                    "    <option value=\"20\">20% off</option>\n" +
+                    "    <option value=\"30\">30% off</option>\n" +
+                    "    <option value=\"40\">40% off</option>\n" +
+                    "    <option value=\"50\">50% off</option>\n" +
+                    "    <option value=\"60\">60% off</option>\n" +
+                    "    <option value=\"70\">70% off</option>\n" +
+                    "    <option value=\"80\">80% off</option>\n" +
+                    "    <option value=\"90\">90% off</option>\n" +
+                    "</select>"                                   +
+                "    Shelf: <select name=\"shelf\">\n" +
+                "    <option value=\"1\">shelf 1</option>\n" +
+                "    <option value=\"2\">shelf 2</option>\n" +
+                "    <option value=\"3\">shelf 3</option>\n" +
+                "    <option value=\"4\">shelf 4</option>\n" +
+                "    <option value=\"5\">shelf 5</option>\n" +
+                "    <option value=\"6\">shelf 6</option>\n" +
+                "</select> <br>";
+                var section=document.getElementById("section");
+                section.appendChild(div);
+            }
+        }
+        function addgoods() {
+            var name = document.getElementsByName("name");
+            var price = document.getElementsByName("price");
+            var discount = document.getElementsByName("discount");
+            var quantity = document.getElementsByName("quantity");
+            var category = document.getElementsByName("class");
+            var shelf = document.getElementsByName("shelf");
+            var goods_class;
+            var productlist = [];
+            for (var j = 0; j < category.length; j++) {
+                if (category[j].checked) {
+                    goods_class = category[j].value;
+                }
+            }
+            for (var i = 0; i < name.length; i++) {
+                if(name[i].value ===""||price[i].value===""||quantity[i]==="") {
+                    alert("Name, quantity and price should not be empty");
+                    return;
+                }else if(isNaN(price[i].value)||isNaN(quantity[i].value)){
+                    alert("price and quantity must be a number");
+                    return;
+                }else if(price[i].value<=0|| quantity[i].value<=0){
+                    alert("price and quantity must bigger than 0");
+                    return;
+                }
+                else {
+                    var product = new Product(name[i].value, price[i].value, discount[i].value, goods_class,quantity[i].value,shelf[i].value);
+                    productlist.push(product);
+                }
+
+            }
+
+            var str = JSON.stringify(productlist);
+            //alert(str);
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {
+                //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState===4 && xmlhttp.status===200)
+                {
+                    var string= xmlhttp.responseText;
+                    alert(string);
+                    createform(1);
+
+                }
+            };
+            xmlhttp.open("POST","product",true);
+            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+            xmlhttp.send(str);
+        }
+        function Product(name,price,discount,category,quantity,shelf) {
+            var pro ={};
+            pro.goodsname = name;
+            pro.price = price;
+            pro.discount = discount;
+            pro.classID = category;
+            pro.quantity = quantity;
+            pro.shelf = shelf;
+            return pro;
+        }
+    </script>
+</head>
+<body onload="checklogin()">
+<div id="header">Administrator
+    <button value="logout" onclick="delsession()">logout</button></div>
+<div id="bar">How much goods do you want to add?
+    1<label>
+        <input type="radio" name="num" checked onclick="createform(1)">
+    </label>
+    2<label>
+        <input type="radio" name="num" onclick="createform(2)">
+    </label>
+    3<label>
+        <input type="radio" name="num" onclick="createform(3)">
+    </label>
+    4<label>
+        <input type="radio" name="num" onclick="createform(4)">
+    </label>
+    5<label>
+        <input type="radio" name="num" onclick="createform(5)">
+    </label>
+    <button value="add" onclick="addgoods()">add to database</button>
+</div>
+<div id="nav"><b>select category</b><br>
+    coat<label>
+        <input type="radio" value="1.1" name="class" checked>
+    </label><br>
+    Trousers<label>
+        <input type="radio" value="1.2" name="class">
+    </label><br>
+    Sweater<label>
+        <input type="radio" value="1.3" name="class">
+    </label><br>
+    Shoes<label>
+        <input type="radio" value="1.4" name="class">
+    </label><br>
+    Computer<label>
+        <input type="radio" value="2.1" name="class">
+    </label><br>
+    Smartphone<label>
+        <input type="radio" value="2.2" name="class">
+    </label><br>
+    Television<label>
+        <input type="radio" value="2.3" name="class">
+    </label><br>
+    Camera<label>
+        <input type="radio" value="2.4" name="class">
+    </label><br>
+    Chips<label>
+        <input type="radio" value="3.1" name="class">
+    </label><br>
+    Cookies<label>
+        <input type="radio" value="3.2" name="class">
+    </label><br>
+    Drinks<label>
+        <input type="radio" value="3.3" name="class">
+    </label><br>
+    Nuts<label>
+        <input type="radio" value="3.4" name="class">
+    </label><br>
+    Novel<label>
+        <input type="radio" value="4.1" name="class">
+    </label><br>
+    Poetry<label>
+        <input type="radio" value="4.2" name="class">
+    </label><br>
+    Prose<label>
+        <input type="radio" value="4.3" name="class">
+    </label><br>
+    Reference Book<label>
+        <input type="radio" onclick="" value="4.4" name="class">
+    </label><br>
+    Pencil<label>
+        <input type="radio" value="5.1" name="class">
+    </label><br>
+    Notebook<label>
+        <input type="radio" value="5.2" name="class">
+    </label><br>
+    Pen<label>
+        <input type="radio" value="5.3" name="class">
+    </label><br>
+    Ruler<label>
+        <input type="radio" value="5.4" name="class">
+    </label><br>
+    Skin care<label>
+        <input type="radio" value="6.1" name="class">
+    </label><br>
+    Lipstick<label>
+        <input type="radio" value="6.2" name="class">
+    </label><br>
+    Toothpaste<label>
+        <input type="radio" value="6.3" name="class">
+    </label><br>
+    household<label>
+        <input type="radio" value="6.4" name="class">
+    </label><br>
+</div>
+<div id="section"></div>
+<div id="footer">bottom of the page</div>
+</body>
+</html>
